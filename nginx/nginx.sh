@@ -33,13 +33,15 @@ links=$(ls -al ${sites_en} | grep -e "^l" | grep -v $conf_name )
 if [ ! -z "$links" ]; then
 	echo "# The following links have been removed $(date):" >> ${sites_en}${conf_name}_enable-sites-change.log
 	echo $links | sed 's|^\(.*\)|# \1|' >> ${sites_en}${conf_name}_enable-sites-change.log
-	for file in $( ls $sites_en | grep -v $conf_name ); do
+	for file in $( ls $sites_en | grep -v $conf_name | grep -v disabled ); do
 		if [ ! -z "$(echo $links | grep $file )" ]; then
 			#echo "File $file is a link"
 			rm ${sites_en}$file
 		else
-			echo "File $file is a document"
+			#echo "File $file is a document"
 			mv ${sites_en}$file ${sites_en}${file}.disbled
+			echo "# All lines in this file have been commented out use sed -i 's|^#||' <filename> to remove the comments" >> ${sites_en}${file}.disbled
+			sed -i 's|^\(.*\)|# \1|' ${sites_en}${file}.disbled
 		fi	
 	done
 fi
